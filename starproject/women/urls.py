@@ -1,7 +1,8 @@
-from django.urls import path
-from .views import index, categories
+from django.urls import path, re_path
+from .views import index, categories, archive
 
 urlpatterns = [
-    path('', index),
-    path("cats/", categories)
+    path('', index, name='home'),
+    path("cats/<slug:cat>/", categories),
+    re_path(r'^archive/(?P<year>[0-9]{4})/', archive)
 ]
