@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import redirect, get_object_or_404
 from .models import *
+from .forms import AddPostForm
 # Create your views here.
 
 def index(request): #HttpRequest
@@ -23,7 +24,18 @@ def login(request):
     return HttpResponse("Авторизация")
 
 def addpage(request):
-    return HttpResponse("Добавление статьи")
+    if request.method == 'POST':
+        form = AddPostForm(request.POST)
+        if form.is_valid():
+            #print(form.cleaned_data)
+            try:
+                Women.objects.create(**form.cleaned_data)
+                return redirect('home')
+            except:
+                form.add_error(None, "Ошибка добавления поста")
+    else:
+        form = AddPostForm()
+    return render(request, 'women/addpage.html', {'form':form, 'title': 'Добавление статьи'})
 
 def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
