@@ -1,16 +1,13 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseNotFound, Http404
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from .models import *
 # Create your views here.
 
 def index(request): #HttpRequest
     posts = Women.objects.all()
-    #cats = Category.objects.all()
     context = {
         'posts': posts,
-    #    'cats': cats,
-    #    'menu': menu,
         'title': 'Главная страница',
         'cat_selected': 0,
     }
@@ -31,19 +28,26 @@ def addpage(request):
 def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Страница не найдена</h1>")
 
-def show_post(request, post_id):
-    return HttpResponse(f"Отображение статьи с id = {post_id}")
+def show_post(request, post_slug):
+    post = get_object_or_404(Women, slug=post_slug)
 
-def show_category(request, cat_id):
-    posts = Women.objects.filter(cat_id=cat_id)
+    context = {
+        'post': post,
+        'title': post.title,
+        'cat_selected': post.cat_id,
+    }
+
+    return render(request, 'women/post.html', context=context)
+
+def show_category(request, cat_slug):
+    category = get_object_or_404(Category, slug=cat_slug)
+    posts = Women.objects.filter(cat_id=category.pk)
     #cats = Category.objects.all()
     if len(posts) == 0:
         raise Http404()
     context = {
         'posts': posts,
-    #    'cats': cats,
-    #    'menu': menu,
         'title': 'Главная страница',
-        'cat_selected': cat_id,
+        'cat_selected': category.pk,
     }
     return render(request, 'women/index.html', context=context)
