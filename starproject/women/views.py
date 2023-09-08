@@ -9,7 +9,12 @@ from .forms import AddPostForm
 from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .utils import *
+from django.core.paginator import Paginator
 # Create your views here.
+menu = [{"title":"О сайте", "url_name":"about"},
+            {"title":"Добавить статью", "url_name":"add_page"},
+            {"title":"Обратная связь", "url_name":"contact"},
+            {"title":"Войти", "url_name":"login"}]
 
 class WomenHome(DataMixin, ListView):
     model = Women
@@ -25,7 +30,12 @@ class WomenHome(DataMixin, ListView):
         return Women.objects.filter(is_published=True)
 
 def about(request):
-    return render(request, 'women/about.html', {'title': 'О сайте'})
+    contact_list = Women.objects.all()
+    paginator = Paginator(contact_list, 3)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'women/about.html', {'page_obj': page_obj, 'title': 'О сайте', 
+                                                'menu': menu})
 
 def contact(request):
     return HttpResponse("Обратная связь")
